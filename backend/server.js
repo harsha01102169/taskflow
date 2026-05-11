@@ -6,33 +6,29 @@ const { initDB } = require('./db');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+const frontendPath = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
 
-// API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/users', require('./routes/users'));
 
-// Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// All other routes serve the frontend
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 
-// Initialize DB then start server
 initDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`TaskFlow server running on port ${PORT}`);
+    console.log(`TaskFlow running on port ${PORT}`);
+    console.log(`Frontend path: ${frontendPath}`);
   });
 }).catch(err => {
   console.error('Failed to initialize database:', err);
